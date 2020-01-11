@@ -52,7 +52,7 @@ function simulationTime = DRCMtv(PARAMETERS,simName)
 % Water supply is a vector
 % S0 (maybe) is a vector
 
-
+addpath('BasinGeometries')
 
 plotinterval    = PARAMETERS.SETUP.saveInterval;
 showPlot        = PARAMETERS.SETUP.showPlot;
