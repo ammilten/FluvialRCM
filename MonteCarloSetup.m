@@ -21,7 +21,7 @@ disp(['Max time step: ',num2str(dtMax)])
 disp(['Used time step: ',num2str(SETUP.dt)])
 
 %%
-NAME = '/home/ammilten/Programs/FluvialRCM/Data/dev';
+NAME = 'Data/dev';
 runMonteCarlo(SETUP, PRIOR, NAME, 1)
 
 
