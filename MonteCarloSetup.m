@@ -22,7 +22,7 @@ disp(['Used time step: ',num2str(SETUP.dt)])
 
 %%
 NAME = 'Data/dev';
-runMonteCarlo(SETUP, PRIOR, NAME, 1)
+% runMonteCarlo(SETUP, PRIOR, NAME, 1)
 
 
 
