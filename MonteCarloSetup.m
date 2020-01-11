@@ -1,7 +1,7 @@
 %%
 run('prioruncertainty.m')
 
-totaltime = 0.5e6 * 365.25 * 24; % Half a million years (in hours)
+totaltime = 70000000; %  1000 time steps 
 
 SETUP = struct(                         ... 
     'L',            100,                 ...
