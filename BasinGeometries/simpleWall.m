@@ -1,0 +1,9 @@
+function type = simpleWall(L,W,N0,L0)
+CTR = floor(W/2);
+type_ocean = 0;
+type_chn = 1;
+type_sed = 2;
+type = zeros(L,W); % marsh/channel/ocean... etc
+type(L0+1:L,:) = type_ocean;
+type(1:L0,:) = type_sed;
+type(1:L0,CTR-round(N0/2)+1:CTR-round(N0/2)+N0) = type_chn;
