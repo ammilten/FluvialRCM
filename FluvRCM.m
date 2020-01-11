@@ -1,4 +1,4 @@
-function simulationTime = DRCMtv(PARAMETERS,simName)
+function simulationTime = FluvRCM(PARAMETERS,simName)
 % PARAMETERS: Struct with following properties
 %     SETUP:
 %         L             Length (y-axis) in grid cells
@@ -52,7 +52,7 @@ function simulationTime = DRCMtv(PARAMETERS,simName)
 % Water supply is a vector
 % S0 (maybe) is a vector
 
-
+addpath('BasinGeometries')
 
 plotinterval    = PARAMETERS.SETUP.saveInterval;
 showPlot        = PARAMETERS.SETUP.showPlot;
