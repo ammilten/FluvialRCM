@@ -9,7 +9,7 @@ save([NAME,'/mcparams.mat']);
 warning('off','all')
 messages = cell(n,1);
 tic
-parfor i=1:n
+for i=1:n
     disp(['Starting sim',num2str(i)])
     try
         VARS = VLIST{i};

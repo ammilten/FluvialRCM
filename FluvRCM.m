@@ -52,8 +52,6 @@ function simulationTime = FluvRCM(PARAMETERS,simName)
 % Water supply is a vector
 % S0 (maybe) is a vector
 
-addpath('BasinGeometries')
-
 plotinterval    = PARAMETERS.SETUP.saveInterval;
 showPlot        = PARAMETERS.SETUP.showPlot;
 L               = PARAMETERS.SETUP.L;
@@ -96,9 +94,9 @@ S0              = PARAMETERS.VARS.S0;
 
 addpath('BasinGeometries/')
 [~,msg,~] = mkdir(simName);
-if strcmp(msg,'Directory already exists.')
-    error(msg)
-end
+% if strcmp(msg,'Directory already exists.')
+%     error(msg)
+% end
 
 %BEGIN SIMULATION
 
@@ -227,7 +225,7 @@ for i = 1:L
     for j = 1:W
         if type(i,j) == 1 % channel
             % assuming normal flow in initial channel
-            qx(i,j) = qw0;
+            qx(i,j) = qw0(1);
             qy(i,j) = 0;
             qw(i,j) = sqrt(qx(i,j)^2+qy(i,j)^2);
             ux(i,j) = qx(i,j)/h(i,j);
@@ -237,7 +235,7 @@ for i = 1:L
             % in the ocean only gives flow direction
             % by giving a "false" flow rate at a magnitude smaller than channel
             % to indicate dominant flow direction for weight-by-direction calculation
-            qx(i,j) = qw0/5;
+            qx(i,j) = qw0(1)/5;
             qy(i,j) = 0;
             qw(i,j) = sqrt(qx(i,j)^2+qy(i,j)^2);
             ux(i,j) = qx(i,j)/h(i,j);
@@ -386,23 +384,32 @@ tic
 while timestep < totaltimestep
 
     timestep = timestep+1;
-    if timestep < t1s
-        qs0 = sed_supply(1) / sed_density / N0 / dx;
-        SLR = SLR_tv(1);
-    elseif timestep >= t1s && timestep < t2s
-        qs0 = sed_supply(2) / sed_density / N0 / dx;
-        SLR = SLR_tv(2);
-    elseif timestep >= t2s && timestep < t3s
-        qs0 = sed_supply(3) / sed_density / N0 / dx;
-        SLR = SLR_tv(3);
-    elseif timestep >= t3s
-        qs0 = sed_supply(4) / sed_density / N0 / dx;
-        SLR = SLR_tv(4);
-    end
-    %disp(['Time: ',num2str(timestep/3600*dt),' [qs0 = ',num2str(qs0),', SLR = ',num2str(SLR),']'])
+    u0 = water_supply(timestep)/h0/N0/dx; 
+    qw0 = u0*h0;
+    Qw0 = u0*h0*N0*dx;
+    Qp_water = Qw0/Np_water; % volume of each water parcel
+    u_max = u_max_coef*u0;
+    U_dep_mud = udm_coef*u0;
+    U_ero_sand = ues_coef*u0;
+    U_ero_mud = uem_coef*u0;
+
+    qs0 = sed_supply(timestep) / sed_density / N0 / dx;
+    SLR = SLR_tv(timestep);
     
-    %disp([simName,': Timestep ',num2str(timestep), ' of ', num2str(totaltimestep)])
-    
+%     if timestep < t1s
+%         qs0 = sed_supply(1) / sed_density / N0 / dx;
+%         SLR = SLR_tv(1);
+%     elseif timestep >= t1s && timestep < t2s
+%         qs0 = sed_supply(2) / sed_density / N0 / dx;
+%         SLR = SLR_tv(2);
+%     elseif timestep >= t2s && timestep < t3s
+%         qs0 = sed_supply(3) / sed_density / N0 / dx;
+%         SLR = SLR_tv(3);
+%     elseif timestep >= t3s
+%         qs0 = sed_supply(4) / sed_density / N0 / dx;
+%         SLR = SLR_tv(4);
+%     end
+
     % ============= Water Routing & Free Surface =============
     for iter = 1:itermax
         % =========== water parcels ===========
@@ -521,12 +528,16 @@ while timestep < totaltimestep
                     if VER_MATLAB == 0
                         pxn = px+randi(1,1,[-1,1]);
                         pyn = py+randi(1,1,[-1,1]);
-                        pxn = max(1,pxn);
                     else
                         pxn = px+randi([-1,1],1,1);
                         pyn = py+randi([-1,1],1,1);
-                        pxn = max(1,pxn);
                     end
+                    
+                    pxn = max(1,pxn);
+                    pyn = max(1,pyn);
+                    pxn = min(size(wet_flag,1),pxn);
+                    pyn = min(size(wet_flag,2),pyn);
+                    
                     ntry = 0;
                     while wet_flag(pxn,pyn) == 0 && ntry < 5
                         ntry = ntry+1;
@@ -539,6 +550,11 @@ while timestep < totaltimestep
                             pyn = py+randi([-1,1],1,1);
                             pxn = max(1,pxn);
                         end
+                        pxn = max(1,pxn);
+                        pyn = max(1,pyn);
+                        pxn = min(size(wet_flag,1),pxn);
+                        pyn = min(size(wet_flag,2),pyn);
+           
                     end
                     istep = pxn-px;
                     jstep = pyn-py;
