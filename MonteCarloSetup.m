@@ -1,7 +1,7 @@
 %%
 run('prioruncertainty.m')
 
-totaltime = 15e3*5000; %  1000 time steps 
+totaltime = 15e3*50; %  1000 time steps 
 
 SETUP = struct(                         ... 
     'L',            50,                 ...
@@ -12,7 +12,7 @@ SETUP = struct(                         ...
     't2',           totaltime*.50,            ... 
     't3',           totaltime*.75,             ... 
     't4',           totaltime,            ... 
-    'saveInterval', 25,                  ...
+    'saveInterval', 1,                  ...
     'showPlot',     false                ...
     ); 
 
@@ -21,7 +21,7 @@ disp(['Max time step: ',num2str(dtMax)])
 disp(['Used time step: ',num2str(SETUP.dt)])
 
 %%
-alpha_qw = 0.05; %variation around Qw
+alpha_qw = 0.05; %variation around skinnytestskinnytestQw
 alpha_qs = 0.05; %variation around Qs
 alpha_SLR = 0.05; %variation around SLR
 
@@ -56,7 +56,7 @@ PRIOR.water_supply = Qw;
 PRIOR.sed_supply = Qs;
 PRIOR.SLR = SLR;
 
-NAME = 'Data/skinnytest';
+NAME = 'Data/slopetest';
 runMonteCarlo(SETUP, PRIOR, NAME, 1)
 
 

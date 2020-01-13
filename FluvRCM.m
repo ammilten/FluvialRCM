@@ -73,6 +73,7 @@ Np_water        = round(PARAMETERS.VARS.Np_water); %2000
 Np_sed          = round(PARAMETERS.VARS.Np_sed); %2000
 u_max_coef      = PARAMETERS.VARS.u_max_coef; %2.0
 hB_coef         = PARAMETERS.VARS.hB_coef; %1.0
+hB              = PARAMETERS.VARS.hB;
 theta_water     = PARAMETERS.VARS.theta_water; %1
 theta_sand      = PARAMETERS.VARS.theta_sand; %2
 theta_mud       = PARAMETERS.VARS.theta_mud; %1
@@ -91,6 +92,7 @@ itermax         = round(PARAMETERS.VARS.itermax); %5
 H_SL            = PARAMETERS.VARS.H_SL; %0
 gamma           = PARAMETERS.VARS.gamma;
 S0              = PARAMETERS.VARS.S0;
+grade           = PARAMETERS.VARS.grade;
 
 addpath('BasinGeometries/')
 [~,msg,~] = mkdir(simName);
@@ -135,7 +137,7 @@ t3s = t3 * 3600 / dt;
 
 GRAVITY = 9.81;
 u_max = u_max_coef*u0;
-hB = hB_coef*h0; % (m) basin depth
+% hB = hB_coef*h0; % (m) basin depth
 dry_depth = min(0.1,0.1*h0); % (m) critial depth to switch to "dry" node
 
 % gamma = 0.05;
@@ -181,13 +183,14 @@ sfc_visit  = zeros(L,W);
 sfc_sum = zeros(L,W);
 wall_flag = zeros(L,W);
 boundflag = zeros(L,W);
-for i = 1:L
-    for j = 1:W
-        if sqrt((i-3)^2+(j-CTR)^2) > L-5
-            boundflag(i,j) = 1;
-        end
-    end
-end
+boundflag(L-3:end,:) = 1;
+% for i = 1:L
+%     for j = 1:W
+%         if sqrt((i-3)^2+(j-CTR)^2) > L-5
+%             boundflag(i,j) = 1;
+%         end
+%     end
+% end
 
 
 % --- initial setup
@@ -206,12 +209,18 @@ end
 for i = 1:L
     for j = 1:W
         if type(i,j) == 0 % ocean
-            H(i,j) = 0;
-            h(i,j) = hB;
+%             H(i,j) = 0;
+            H(i,j) = grade * (L-i) * dx;
+%             h(i,j) = hB;
+%             h(i,j) = 0;
+            h(i,j) = 0;
+            
         else
-            H(i,j) = max(0,L0-i)*dx*S0; % wall and channel both
+%             H(i,j) = max(0,L0-i)*dx*S0; % wall and channel both
+            H(i,j) = max(0,L0-i)*dx*S0 + grade * (L-i) * dx;
             if type(i,j) == 1 % channel
                 h(i,j) = h0;
+%                 h(i,j) = -grade * (L-i) * dx;
             else
                 h(i,j) = 0;
             end
@@ -359,8 +368,9 @@ timestep = 0;
 % prepare for recording strata
 z0 = H_SL-h0*2; % bottom layer ELEVATION
 dz = 0.01*h0; % layer thickness
-totalSLR = max(SLR_tv) * totaltime / 1000;
-zmax = round((H_SL+totalSLR+S0*L/2*dx-z0)/dz); % max layer NUMBER
+% totalSLR = max(SLR_tv) * totaltime / 1000;
+totalSLR = max(cumsum(SLR_tv));
+zmax = round((H_SL+totalSLR+S0*L/4*dx-z0)/dz); % max layer NUMBER
 strata0 = -1; % default value in strata as "none"
 strata = ones(L,W,zmax)*strata0; % initialize strata storage matrix
 % initialize the surface layer NUMBER

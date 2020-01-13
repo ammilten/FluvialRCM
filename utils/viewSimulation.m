@@ -1,12 +1,16 @@
-function f = viewSimulation(simFolder,option, varargin)
+function f = viewSimulation(mcfolder,simnum,option, varargin)
 %simFolder = 'sim8/';
 
 % options: bed_elevation, water_depth, discharge, velocity
 
+simFolder = [mcfolder,'sim',num2str(simnum),'/'];
+
 %% Note that these are hardcoded, it would be better to access these from mcparams.mat
-W_m = 2.6;
-L_m = 1.3;
-dt = 1/4;
+load([mcfolder,'mcparams.mat'])
+W_m = SETUP.W_m;
+dx = SETUP.W_m/SETUP.W;
+L_m = SETUP.L*dx;
+dt = SETUP.dt;
 
 %% Movie with stratigraphy evolution
 files = dir([simFolder,'*.mat']);
